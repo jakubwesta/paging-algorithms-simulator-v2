@@ -1,7 +1,8 @@
-package org.example;
+package org.simulator;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        SimulationHandler handler = new SimulationHandler();
+        handler.runTests();
     }
 }

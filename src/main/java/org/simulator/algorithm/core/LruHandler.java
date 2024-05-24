@@ -1,4 +1,4 @@
-package org.simulator.algorithm;
+package org.simulator.algorithm.core;
 
 import org.simulator.scenario.RunResult;
 import org.simulator.system.Process;
@@ -6,29 +6,28 @@ import org.simulator.system.Reference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Queue;
 
-public abstract class FrameAllocationAlgorithm {
-    protected HashMap<Process, ProcessData> dataMap;
+public class LruHandler {
+    private final FrameAllocationAlgorithm algorithm;
 
-    public FrameAllocationAlgorithm() {
-        this.dataMap = new HashMap<>();
+    public LruHandler(FrameAllocationAlgorithm algorithm) {
+        this.algorithm = algorithm;
     }
 
-    public final RunResult simulate(ArrayList<Reference> pageReferences, int frameCount, int processAmount) {
-        dataMap = initializeDataMap(frameCount, processAmount);
+    public final RunResult simulate(ArrayList<Reference> pageReferences, int frameCount, ArrayList<Process> processes) {
+        HashMap<Process, ProcessData> dataMap = algorithm.initializeDataMap(pageReferences, frameCount, processes);
 
         for (Reference reference : pageReferences) {
             ProcessData processData = dataMap.get(reference.process());
-            ArrayList<Integer> frames = processData.frames;
-            Queue<Integer> frameQueue = processData.frameQueue;
+            ArrayList<Integer> frames = processData.getFrames();
+            Queue<Integer> frameQueue = processData.getFrameQueue();
             Integer page = reference.page();
 
             if (!frames.contains(page)) {
-                processData.pageFaults++;
+                processData.addPageFault();
 
-                if (frames.size() == processData.frameAmount) {
+                if (frames.size() == processData.getFrameAmount()) {
                     frames.remove(frameQueue.poll());
                 }
 
@@ -41,32 +40,10 @@ public abstract class FrameAllocationAlgorithm {
             }
         }
 
-        return createRunResults(frameCount, processAmount, dataMap);
-    }
-
-    protected abstract HashMap<Process, ProcessData> initializeDataMap(int frameCount, int processAmount);
-
-    protected abstract RunResult createRunResults(int frameCount, int processAmount, HashMap<Process, ProcessData> dataMap);
-
-    public void reset() {
-        this.dataMap = new HashMap<>();
+        return algorithm.createRunResults(dataMap);
     }
 
     public String getName() {
         return getClass().getSimpleName();
-    }
-
-    static class ProcessData {
-        int frameAmount;
-        int pageFaults;
-        Queue<Integer> frameQueue;
-        ArrayList<Integer> frames;
-
-        ProcessData(int frameAmount) {
-            this.frameAmount = frameAmount;
-            this.pageFaults = 0;
-            this.frameQueue = new LinkedList<>();
-            this.frames = new ArrayList<>();
-        }
     }
 }
