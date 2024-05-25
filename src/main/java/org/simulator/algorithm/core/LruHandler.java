@@ -4,9 +4,7 @@ import org.simulator.scenario.RunResult;
 import org.simulator.system.Process;
 import org.simulator.system.Reference;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Queue;
+import java.util.*;
 
 public class LruHandler {
     private final FrameAllocationAlgorithm algorithm;
@@ -24,8 +22,10 @@ public class LruHandler {
             Queue<Integer> frameQueue = processData.getFrameQueue();
             Integer page = reference.page();
 
+            boolean faultOccurred = false;
             if (!frames.contains(page)) {
                 processData.addPageFault();
+                faultOccurred = true;
 
                 if (frames.size() == processData.getFrameAmount()) {
                     frames.remove(frameQueue.poll());
@@ -38,9 +38,19 @@ public class LruHandler {
                 frameQueue.remove(page);
                 frameQueue.add(page);
             }
+
+            Optional<HashMap<Process, ProcessData>> newDataMap = algorithm.handlePossibleFault(dataMap, reference.process(), faultOccurred);
+            if (newDataMap.isPresent()) {
+                dataMap = newDataMap.get();
+            }
         }
 
-        return algorithm.createRunResults(dataMap);
+        int total = 0;
+        for (Map.Entry<Process, ProcessData> entry : dataMap.entrySet()) {
+            total += entry.getValue().getPageFaults();
+        }
+        int average = total / dataMap.size();
+        return new RunResult(total, average);
     }
 
     public String getName() {

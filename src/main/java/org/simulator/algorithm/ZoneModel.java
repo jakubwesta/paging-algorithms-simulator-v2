@@ -2,13 +2,12 @@ package org.simulator.algorithm;
 
 import org.simulator.algorithm.core.FrameAllocationAlgorithm;
 import org.simulator.algorithm.core.ProcessData;
-import org.simulator.scenario.RunResult;
 import org.simulator.system.Process;
 import org.simulator.system.Reference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 public class ZoneModel implements FrameAllocationAlgorithm {
     public ZoneModel() {
@@ -20,14 +19,8 @@ public class ZoneModel implements FrameAllocationAlgorithm {
         return null;
     }
 
-
     @Override
-    public RunResult createRunResults(HashMap<Process, ProcessData> dataMap) {
-        int total = 0;
-        for (Map.Entry<Process, ProcessData> entry : dataMap.entrySet()) {
-            total += entry.getValue().addPageFault();
-        }
-        int average = total / dataMap.size();
-        return new RunResult(total, average);
+    public Optional<HashMap<Process, ProcessData>> handlePossibleFault(HashMap<Process, ProcessData> dataMap, Process process, boolean fault) {
+        return null;
     }
 }

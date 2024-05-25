@@ -19,7 +19,7 @@ public class ProcessData {
         this.frames = new ArrayList<>();
     }
 
-    public int addPageFault() {
-        return ++pageFaults;
+    public void addPageFault() {
+        pageFaults++;
     }
 }

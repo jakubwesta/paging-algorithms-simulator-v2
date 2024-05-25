@@ -29,8 +29,8 @@ public class Process {
                 int previous = references.get(i - 1).page();
 
                 int pageId = Math.abs(random.nextInt(previous - radius, previous + radius));
-                if (pageId > maxPageId) {
-                    pageId = maxPageId;
+                if (pageId >= maxPageId) {
+                    pageId = maxPageId - 1;
                 }
                 if (pageId < minPageId) {
                     pageId = minPageId;
